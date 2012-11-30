@@ -14,7 +14,6 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;
-import java .awt.event.*;
 
 public class ServerLocal extends JFrame
 {
@@ -26,7 +25,7 @@ public class ServerLocal extends JFrame
  JTextField textField;
  Container contentPane ;
  int i=-1,j;
- Vector ex=new Vector();
+ Vector ex=new Vector(); //Obsolete Collection warning is ignored because i ues Thread; A Vector is synchronised, an ArrayList is not
  ServerSocket me;
  Socket s,sser;
  PrintWriter out2 = null;
@@ -182,6 +181,7 @@ class servertry extends Thread
   this.strsserver=strsserver;
   System.out.println(new1);
  }
+        @Override
  public void run()
  {
   //System.out.println("servertry run");
@@ -192,7 +192,7 @@ class servertry extends Thread
    op=new PrintStream(s.getOutputStream());
    System.out.println("new1 : "+new1);
    System.out.println("connected to server");
-   FileOutputStream fos2=new FileOutputStream("c:\\log.txt",true);
+   FileOutputStream fos2=new FileOutputStream("./log.txt",true);
    fos2.write(" ".getBytes());
    fos2.write(("\n The user "+new1+" connected to the server").getBytes());
    fos2.close();
@@ -249,7 +249,7 @@ class servertry extends Thread
 	  System.out.println("line"+line);
 	  System.out.println("The message is  "+line);
 	  length1 = line.length();
-	  FileOutputStream fos=new FileOutputStream("c:\\log.txt",true);
+	  FileOutputStream fos=new FileOutputStream("./log.txt",true);
       fos.write(" ".getBytes());
 	  fos.write(("\n   The user :"+new1).getBytes());
       fos.write(("\n Sent the message. Length of the message is "+":"+length1+" Bytes").getBytes());
@@ -345,7 +345,7 @@ class servertry extends Thread
            System.out.println("3"+line);
            if(line!=null)
            {
-           if(line!="Exit")
+           if(!line.equals("Exit"))
            {
               System.out.println(line);
               System.out.println(i);
