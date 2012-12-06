@@ -134,6 +134,7 @@ public class Start extends JFrame{
                 f.setTitle("Client");
                 f.setSize(700,350);
                 f.setVisible(true);
+                
 
 		/* Récupérer la liste des statuts de l'ami */
 		try {
