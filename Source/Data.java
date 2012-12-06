@@ -1,5 +1,7 @@
 
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.stream.*;
 
 /**
@@ -183,7 +185,7 @@ class Flux extends Data {
             writer.writeStartDocument("UTF-8", "1.0");
 
             if (type.equals("RE_SENDPOST")) {
-                writer.writeStartElement("REQUEST");
+                writer.writeStartElement("RESPONSE");
 
                 writer.writeStartElement("KEYWORD");
                 writer.writeComment("SENDPOST");
@@ -231,47 +233,24 @@ class Flux extends Data {
                 writer.writeStartElement("port");
                 writer.writeComment(u.getPort());
                 writer.writeEndElement();
+                
+                setFluxPosts(writer, p);
+                setFluxFriends(writer, u);
 
-                writer.writeStartElement("posts");
-                try{
-                    for (int i = 0; i < p.length; i++) {
-                        writer.writeStartElement("author");
-                        writer.writeComment(p[i].getAuthor());
-                        writer.writeEndElement();
+                writer.writeEndElement();                
+                writer.writeEndElement(); //profile
+            }else if(type.equals("RE_LISTPOST")){
+                writer.writeStartElement("RESPONSE");
 
-                        writer.writeStartElement("date");
-                        writer.writeComment(p[i].getDate());
-                        writer.writeEndElement();
-
-                        writer.writeStartElement("content");
-                        writer.writeComment(p[i].getContent());
-                        writer.writeEndElement();
-                    }
-                }catch(Exception e){
-                }
-                writer.writeEndElement();
-
-                writer.writeStartElement("friends");
-                Friend[] f = new Friend[u.getFriends().length];
-                System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
-                try {
-                    for (int i = 0; i < f.length; i++) {
-                        writer.writeStartElement("name");
-                        writer.writeComment(f[i].getFirstName());
-                        writer.writeComment(f[i].getLastName());
-                        writer.writeEndElement();
-
-                        writer.writeStartElement("ip");
-                        writer.writeComment(f[i].getIp());
-                        writer.writeEndElement();
-                    }
-                } catch(Exception e){
-                }
+                writer.writeStartElement("CODE");//code de retour en fonction des info envoyees
+                writer.writeComment("202");//pour l'instant par defaut 202
                 writer.writeEndElement();
                 
-                writer.writeEndElement(); //profile
+                setFluxPosts( writer, p);
+                writer.writeEndElement();
+            }else if(type.equals("RE_WHO")){
+
             }
-            writer.writeEndDocument();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
@@ -363,6 +342,61 @@ class Flux extends Data {
         }
         return out;
     }
+
+    /**
+     * ecrit les posts de u dans writer
+     *
+     * @param writer du flux
+     * @param u
+     */
+    public static void setFluxPosts(XMLStreamWriter writer, Post[] p) {
+        try {
+            for (int i = 0; i < p.length; i++) {
+                writer.writeStartElement("POST");
+                writer.writeStartElement("author");
+                writer.writeComment(p[i].getAuthor());
+                writer.writeEndElement();
+
+                writer.writeStartElement("date");
+                writer.writeComment(p[i].getDate());
+                writer.writeEndElement();
+
+                writer.writeStartElement("content");
+                writer.writeComment(p[i].getContent());
+                writer.writeEndElement();
+                writer.writeEndDocument();
+            }
+        } catch (Exception e) {
+        }
+    }
+    /**
+     * ecrit les amis de u dans writer
+     *
+     * @param writer du flux
+     * @param u
+     */
+    public static void setFluxFriends(XMLStreamWriter writer, User u) {
+        try {
+            writer.writeStartElement("friends");
+        } catch (XMLStreamException ex) {
+            Logger.getLogger(Flux.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Friend[] f = new Friend[u.getFriends().length];
+        System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
+        try {
+            for (int i = 0; i < f.length; i++) {
+                writer.writeStartElement("name");
+                writer.writeComment(f[i].getFirstName());
+                writer.writeComment(f[i].getLastName());
+                writer.writeEndElement();
+
+                writer.writeStartElement("ip");
+                writer.writeComment(f[i].getIp());
+                writer.writeEndElement();
+            }
+        } catch (Exception e) {
+        }
+    }
 }
 
 /**
@@ -376,10 +410,10 @@ class LocalData extends Data {
      * 
      * @param u contenu initial
      */
-    public void creerProfile(Flux u) {
+    public static void creerProfile(Flux u, String fileName) {
 
         try {
-            File fichier = new File("Profile.xml");
+            File fichier = new File(fileName);
             PrintWriter sortie = null;
             try {
                 sortie = new PrintWriter(new FileWriter(fichier));
@@ -393,7 +427,7 @@ class LocalData extends Data {
         }
     }
 
-    public User FileToProfile(String fichier) {
+    public static User FileToProfile(String fichier) {
         String s = "";
         try {
             InputStream ips = new FileInputStream(fichier);
@@ -414,13 +448,13 @@ class LocalData extends Data {
         return u;
     }
     
-    public void ajouterAmi(Friend f){
+    public static void ajouterAmi(Friend f, String fileName){
         User u = new User();
-        u = FileToProfile("Profile.xml");
-        File oldProfile = new File("Profile.xml");
+        u = FileToProfile(fileName);
+        File oldProfile = new File(fileName);
         oldProfile.delete(); 
         u.addFriend(f);
         Flux flux = new Flux(null, u, "USER");        
-        creerProfile(flux);
+        creerProfile(flux, fileName);
     }
 }
