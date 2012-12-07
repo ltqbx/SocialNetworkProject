@@ -30,7 +30,7 @@ class SuperServer extends JFrame
 	String line="", linet="";
 	boolean f1,f2;
 	static JScrollPane jsp;
-    //END OF DECLARATION
+        //END OF DECLARATION
 
 	int i=-1,j;
 	Vector ex=new Vector();

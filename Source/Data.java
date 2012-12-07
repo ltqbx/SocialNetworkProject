@@ -1,9 +1,10 @@
-
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.stream.*;
 
 /**
- * 
+ *
  * @author dorian
  */
 public abstract class Data {
@@ -18,7 +19,7 @@ class User extends Data {
     private Post[] posts;
     private String ip;
     private int port;
-    
+
     public User(){
         this("?", "?", 1234);
     }
@@ -41,27 +42,36 @@ class User extends Data {
         String s = this.firstName;
         return s;
     }
+    public void setfirstName(String f){
+        this.firstName = f;
+    }
 
     public String getLastName() {
         String s = this.lastName;
         return s;
+    }
+    public void setlastName(String l){
+        this.lastName = l;
     }
 
     public String getBirthday() {
         String s = this.birthday;
         return s;
     }
-    
+    public void setBirthday(String b){
+        this.birthday = b;
+    }
+
     public Friend[] getFriends() {
         Friend[] f = new Friend[this.friends.length + 1];
         System.arraycopy(this.friends, 0, f, 0, this.friends.length);
         return f;
-    }  
+    }
     public void addFriend(Friend f){
         Friend[] newf = new Friend[this.friends.length + 1];
         System.arraycopy(this.friends, 0, newf, 0, this.friends.length);
         newf[this.friends.length + 1] = f;
-    }    
+    }
 
     public Post[] getPosts() {
         Post[] p = new Post[this.posts.length + 1];
@@ -95,14 +105,14 @@ class Friend extends Data{
     private String lastName;
     private String ip;
     private int cle;
-    
+
     public Friend(String firstName, String lastName, String ip, int cle){
         this.firstName = firstName;
         this.lastName = lastName;
         this.ip = ip;
         this.cle = cle;
     }
-    
+
     public String getFirstName(){
         String f = new String();
         f = this.firstName;
@@ -169,8 +179,8 @@ class Flux extends Data {
 
     /**
      * cree un flux en format xml
-     * 
-     * @param type de flux a creer 
+     *
+     * @param type de flux a creer
      * @param p post a envoyer
      * @param u personne qui envoit le post
      */
@@ -183,14 +193,15 @@ class Flux extends Data {
             writer.writeStartDocument("UTF-8", "1.0");
 
             if (type.equals("RE_SENDPOST")) {
-                writer.writeStartElement("REQUEST");
+                writer.writeStartElement("RESPONSE");
+                writer.writeEndElement();
 
                 writer.writeStartElement("KEYWORD");
                 writer.writeComment("SENDPOST");
                 writer.writeEndElement();
 
                 writer.writeStartElement("BODY");
-                
+
                 writer.writeStartElement("OWNER");
                 writer.writeComment(p[0].getAuthor());
                 writer.writeEndElement();
@@ -206,13 +217,13 @@ class Flux extends Data {
                 writer.writeStartElement("CONTENT");
                 writer.writeComment(p[0].getContent());
                 writer.writeEndElement();
-                
-                writer.writeEndElement(); //BODY
-                writer.writeEndElement(); //REQUEST
-            } else if (type.equals("USER")) {
-                writer.writeStartElement("Profile");
 
-                writer.writeStartElement("firtName");
+                //writer.writeEndElement(); //BODY
+                //writer.writeEndElement(); //RESPONSE
+            } else if (type.equals("USER")) {
+                //writer.writeStartElement("Profile");
+
+                writer.writeStartElement("firstName");
                 writer.writeComment(u.getFirstName());
                 writer.writeEndElement();
 
@@ -232,71 +243,93 @@ class Flux extends Data {
                 writer.writeComment(u.getPort());
                 writer.writeEndElement();
 
-                writer.writeStartElement("posts");
-                try{
-                    for (int i = 0; i < p.length; i++) {
-                        writer.writeStartElement("author");
-                        writer.writeComment(p[i].getAuthor());
-                        writer.writeEndElement();
+                setFluxPosts(writer, p);
+                setFluxFriends(writer, u);
 
-                        writer.writeStartElement("date");
-                        writer.writeComment(p[i].getDate());
-                        writer.writeEndElement();
+                //writer.writeEndElement(); //profile
+            } else if (type.equals("RE_LISTPOST")) {
+                writer.writeStartElement("RESPONSE");
 
-                        writer.writeStartElement("content");
-                        writer.writeComment(p[i].getContent());
-                        writer.writeEndElement();
-                    }
-                }catch(Exception e){
-                }
+                writer.writeStartElement("CODE");//code de retour en fonction des info envoyees
+                writer.writeComment("202");//pour l'instant par defaut 202
                 writer.writeEndElement();
 
-                writer.writeStartElement("friends");
-                Friend[] f = new Friend[u.getFriends().length];
-                System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
-                try {
-                    for (int i = 0; i < f.length; i++) {
-                        writer.writeStartElement("name");
-                        writer.writeComment(f[i].getFirstName());
-                        writer.writeComment(f[i].getLastName());
-                        writer.writeEndElement();
-
-                        writer.writeStartElement("ip");
-                        writer.writeComment(f[i].getIp());
-                        writer.writeEndElement();
-                    }
-                } catch(Exception e){
-                }
+                setFluxPosts(writer, p);
                 writer.writeEndElement();
-                
-                writer.writeEndElement(); //profile
+            } else if (type.equals("RE_WHO")) {
             }
-            writer.writeEndDocument();
         } catch (Exception e) {
             System.out.println(e.toString());
         }
         this.donnee = outStr.toString();
     }
-    public Flux(String s){
-        this.donnee = s;
+
+    public Flux(String s) {
+        this.donnee =new String(s);
     }
-    
-    public User FluxToUser(){
+
+    public User FluxToUser() {
+        XMLInputFactory inFact = XMLInputFactory.newInstance();
         User u = new User();
-        //a faire
-        
+        try {
+            XMLStreamReader reader = inFact.createXMLStreamReader(new StringReader(this.donnee));
+            PrintWriter pw = new PrintWriter(System.out, true);
+            while (reader.hasNext()) {
+                if (reader.isStartElement()) {
+                    if (reader.getLocalName().equals("firstName")) {
+                        u.setfirstName(reader.getElementText());
+                    }
+                    if (reader.getLocalName().equals("lastName")) {
+                        u.setlastName(reader.getElementText());
+                    }
+                    if (reader.getLocalName().equals("birthday")) {
+                        u.setBirthday(reader.getElementText());
+                    }
+                    if (reader.getLocalName().equals("ip")) {
+                        u.setIp(reader.getElementText());
+                    }
+                    if (reader.getLocalName().equals("port")) {
+                        u.setPort(Integer.getInteger(reader.getElementText()));
+                    }
+                    if (reader.getLocalName().equals("POST")) {
+                        String last = reader.getElementText();
+                        reader.next();
+                        String first = reader.getElementText();
+                        reader.next();
+                        String ip = reader.getElementText();
+
+                        Friend f = new Friend(first, last, ip, 1);
+                        u.addFriend(f);
+                    }
+
+                    if (reader.getLocalName().equals("friends")) {
+                        String author = reader.getElementText();
+                        reader.next();
+                        String date = reader.getElementText();
+                        reader.next();
+                        String content = reader.getElementText();
+                        reader.next();
+
+                        Post p = new Post(author, content, date);
+                        u.addPost(p);
+                    }
+                }
+                reader.next();
+            }
+        } catch (Exception e) {
+        }
         return u;
     }
-    public String FluxToString(){        
+    public String FluxToString(){
         String s = new String();
         s = this.donnee;
         return s;
-        
+
     }
 
     /**
      * creer un tableau de donnees a partir d'un flux xml
-     * 
+     *
      * @return la premiere case indique le type de donnee recue
      */
     public String[] FluxToStringArray() {
@@ -341,7 +374,7 @@ class Flux extends Data {
                                 out[3] = reader.getElementText();
                             if (reader.getLocalName().equals("friends")){
                                 //
-                            }                                
+                            }
                             if (reader.getLocalName().equals("posts")){
                                 //
                             }
@@ -351,9 +384,9 @@ class Flux extends Data {
                                 out[7] = reader.getElementText();
                             reader.next();
                         }
-                        
+
                     }
-                    
+
 
                 }
                 reader.next();
@@ -362,6 +395,64 @@ class Flux extends Data {
             System.out.println(e.toString());
         }
         return out;
+    }
+
+    /**
+     * ecrit les posts de u dans writer
+     *
+     * @param writer du flux
+     * @param u
+     */
+    public static void setFluxPosts(XMLStreamWriter writer, Post[] p) {
+        try {
+            for (int i = 0; i <= p.length; i++) {
+                writer.writeStartElement("POST");
+                writer.writeEndElement();
+
+                writer.writeStartElement("author");
+                writer.writeComment(p[i].getAuthor());
+                writer.writeEndElement();
+
+                writer.writeStartElement("date");
+                writer.writeComment(p[i].getDate());
+                writer.writeEndElement();
+
+                writer.writeStartElement("content");
+                writer.writeComment(p[i].getContent());
+                writer.writeEndElement();
+
+                //writer.writeEndElement();
+            }
+        } catch (Exception e) {
+        }
+    }
+    /**
+     * ecrit les amis de u dans writer
+     *
+     * @param writer du flux
+     * @param u
+     */
+    public static void setFluxFriends(XMLStreamWriter writer, User u) {
+        Friend[] f = new Friend[u.getFriends().length];
+        System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
+        try {
+            for (int i = 0; i <= f.length; i++) {
+                writer.writeStartElement("friend");
+                writer.writeEndElement();
+
+                writer.writeStartElement("name");
+                writer.writeComment(f[i].getFirstName());
+                writer.writeComment(f[i].getLastName());
+                writer.writeEndElement();
+
+                writer.writeStartElement("ip");
+                writer.writeComment(f[i].getIp());
+                writer.writeEndElement();
+
+                //writer.writeEndElement();
+            }
+        } catch (Exception e) {
+        }
     }
 }
 
@@ -372,20 +463,12 @@ class Flux extends Data {
 class LocalData extends Data {
 
     /**
-     * creer un fichier Profile.xml
-     * 
+     *
      * @param u contenu initial
      */
-    public void creerProfile(Flux u) {
-
+    public static void creerFile(Flux u, String fileName) {
         try {
-            File fichier = new File("Profile.xml");
-            PrintWriter sortie = null;
-            try {
-                sortie = new PrintWriter(new FileWriter(fichier));
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
+            PrintWriter sortie = new PrintWriter(new FileOutputStream(fileName));
             sortie.println(u.FluxToString());
             sortie.close();
         } catch (Exception e) {
@@ -393,7 +476,7 @@ class LocalData extends Data {
         }
     }
 
-    public User FileToProfile(String fichier) {
+    public static User FileToProfile(String fichier) {
         String s = "";
         try {
             InputStream ips = new FileInputStream(fichier);
@@ -413,14 +496,24 @@ class LocalData extends Data {
         u = f.FluxToUser();
         return u;
     }
-    
-    public void ajouterAmi(Friend f){
+
+    public static void ajouterAmi(Friend f, String fileName){
         User u = new User();
-        u = FileToProfile("Profile.xml");
-        File oldProfile = new File("Profile.xml");
-        oldProfile.delete(); 
+        u = FileToProfile(fileName);
+        File oldProfile = new File(fileName);
+        oldProfile.delete();
         u.addFriend(f);
-        Flux flux = new Flux(null, u, "USER");        
-        creerProfile(flux);
+        Flux flux = new Flux(null, u, "USER");
+        creerFile(flux, fileName);
     }
+    public static void ajouterPost(Post p, String fileName){
+        User u = new User();
+        u = FileToProfile(fileName);
+        File oldProfile = new File(fileName);
+        oldProfile.delete();
+        u.addPost(p);
+        Flux flux = new Flux(null, u, "USER");
+        creerFile(flux, fileName);
+    }
+
 }

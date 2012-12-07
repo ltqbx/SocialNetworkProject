@@ -61,17 +61,17 @@ public class Client extends JFrame implements ActionListener,Runnable
      cnt = this.getContentPane();
      cnt.setLayout(null);
      cnt.setBackground(Color.green);
-     JLabel lb1 = new JLabel("Connect As :  ");
+     JLabel lb1 = new JLabel("Connect As:");
 	 lb1.setBounds(30,30,120,50);
-     JLabel lb2 = new JLabel("Enter Port Number : ");
+     JLabel lb2 = new JLabel("Enter Port Number:");
 	 lb2.setBounds(30,60,120,50);
-     JLabel lb3 = new JLabel(" Send Messages To : ");
-	 lb3.setBounds(30,90,125,50);
+     JLabel lb3 = new JLabel("Send Messages To:");
+	 lb3.setBounds(30,90,120,50);
      JLabel lb4 = new JLabel("Message To Be Sent:");
-	 lb4.setBounds(30,120,120,50);
-     JLabel lb8 = new JLabel("Message Received  : ");
+	 lb4.setBounds(30,120,127,50);
+     JLabel lb8 = new JLabel("Message Received:");
 	 lb8.setBounds(30,150,120,50);
-     JLabel lb5 = new JLabel("File Request       :    ");
+     JLabel lb5 = new JLabel("File Request:");
 	 lb5.setBounds(30,190,120,50);
 	 tf1 = new JTextField(10);
 	 tf1.setBounds(170,45,170,20);
@@ -219,7 +219,7 @@ public class Client extends JFrame implements ActionListener,Runnable
 		 System.out.println(f);
 	 }
      str3 = tf1.getText();
-	 System.out.println(" client id is"+str3);
+	 System.out.println("client id is"+str3);
      clientid = str3;
      str1 = str3+"^";
      //System.out.println(str1);
@@ -402,10 +402,10 @@ public class Client extends JFrame implements ActionListener,Runnable
          line1 = line10.substring(pos+1);
          int length = line1.length();
          //System.out.println(length +"length");
-         char s;
-         s=line1.charAt(length-1);
+         char c;
+         c=line1.charAt(length-1);
          //System.out.println(s );
-         if(s=='^')       //adding the Client name to the list box
+         if(c=='^')       //adding the Client name to the list box
          {
           	jl1.add(line1);
             //System.out.println("added");
@@ -413,14 +413,14 @@ public class Client extends JFrame implements ActionListener,Runnable
             tf3.setText("");
             str1 = "";
          }
-         else if(s=='@')                     //MESSAGE
+         else if(c=='@')                     //MESSAGE
          {
              tf4.setText("");
              tf8.setText(line1.substring(0,((line1.length())-1)));
              //System.out.println("rec message");
              System.out.println(line1);
           }
-         else if(s=='!')                             //FILE READING
+         else if(c=='!')                             //FILE READING
          {
            long len;
            try

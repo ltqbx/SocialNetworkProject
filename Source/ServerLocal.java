@@ -108,7 +108,7 @@ public class ServerLocal extends JFrame
         contentPane.add(jsp,BorderLayout.CENTER);
         textField = new JTextField(" ",20);
         contentPane.add(textField,BorderLayout.SOUTH);
-        setTitle("Server1");
+        setTitle("Server Local");
         setSize(350,300);
         setVisible(true);
         //System.out.print(i);
