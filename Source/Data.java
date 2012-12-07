@@ -194,10 +194,7 @@ class Flux extends Data {
 
             if (type.equals("RE_SENDPOST")) {
                 writer.writeStartElement("RESPONSE");
-<<<<<<< HEAD
                 writer.writeEndElement();
-=======
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
 
                 writer.writeStartElement("KEYWORD");
                 writer.writeComment("SENDPOST");
@@ -245,11 +242,7 @@ class Flux extends Data {
                 writer.writeStartElement("port");
                 writer.writeComment(u.getPort());
                 writer.writeEndElement();
-                
-                setFluxPosts(writer, p);
-                setFluxFriends(writer, u);
 
-<<<<<<< HEAD
                 setFluxPosts(writer, p);
                 setFluxFriends(writer, u);
 
@@ -264,21 +257,6 @@ class Flux extends Data {
                 setFluxPosts(writer, p);
                 writer.writeEndElement();
             } else if (type.equals("RE_WHO")) {
-=======
-                writer.writeEndElement();                
-                writer.writeEndElement(); //profile
-            }else if(type.equals("RE_LISTPOST")){
-                writer.writeStartElement("RESPONSE");
-
-                writer.writeStartElement("CODE");//code de retour en fonction des info envoyees
-                writer.writeComment("202");//pour l'instant par defaut 202
-                writer.writeEndElement();
-                
-                setFluxPosts( writer, p);
-                writer.writeEndElement();
-            }else if(type.equals("RE_WHO")){
-
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
             }
         } catch (Exception e) {
             System.out.println(e.toString());
@@ -427,15 +405,10 @@ class Flux extends Data {
      */
     public static void setFluxPosts(XMLStreamWriter writer, Post[] p) {
         try {
-<<<<<<< HEAD
             for (int i = 0; i <= p.length; i++) {
                 writer.writeStartElement("POST");
                 writer.writeEndElement();
 
-=======
-            for (int i = 0; i < p.length; i++) {
-                writer.writeStartElement("POST");
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
                 writer.writeStartElement("author");
                 writer.writeComment(p[i].getAuthor());
                 writer.writeEndElement();
@@ -447,12 +420,8 @@ class Flux extends Data {
                 writer.writeStartElement("content");
                 writer.writeComment(p[i].getContent());
                 writer.writeEndElement();
-<<<<<<< HEAD
 
                 //writer.writeEndElement();
-=======
-                writer.writeEndDocument();
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
             }
         } catch (Exception e) {
         }
@@ -464,7 +433,6 @@ class Flux extends Data {
      * @param u
      */
     public static void setFluxFriends(XMLStreamWriter writer, User u) {
-<<<<<<< HEAD
         Friend[] f = new Friend[u.getFriends().length];
         System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
         try {
@@ -472,17 +440,6 @@ class Flux extends Data {
                 writer.writeStartElement("friend");
                 writer.writeEndElement();
 
-=======
-        try {
-            writer.writeStartElement("friends");
-        } catch (XMLStreamException ex) {
-            Logger.getLogger(Flux.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        Friend[] f = new Friend[u.getFriends().length];
-        System.arraycopy(u.getFriends(), 0, f, 0, u.getFriends().length);
-        try {
-            for (int i = 0; i < f.length; i++) {
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
                 writer.writeStartElement("name");
                 writer.writeComment(f[i].getFirstName());
                 writer.writeComment(f[i].getLastName());
@@ -491,11 +448,8 @@ class Flux extends Data {
                 writer.writeStartElement("ip");
                 writer.writeComment(f[i].getIp());
                 writer.writeEndElement();
-<<<<<<< HEAD
 
                 //writer.writeEndElement();
-=======
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
             }
         } catch (Exception e) {
         }
@@ -512,22 +466,9 @@ class LocalData extends Data {
      *
      * @param u contenu initial
      */
-<<<<<<< HEAD
     public static void creerFile(Flux u, String fileName) {
         try {
             PrintWriter sortie = new PrintWriter(new FileOutputStream(fileName));
-=======
-    public static void creerProfile(Flux u, String fileName) {
-
-        try {
-            File fichier = new File(fileName);
-            PrintWriter sortie = null;
-            try {
-                sortie = new PrintWriter(new FileWriter(fichier));
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
             sortie.println(u.FluxToString());
             sortie.close();
         } catch (Exception e) {
@@ -555,26 +496,15 @@ class LocalData extends Data {
         u = f.FluxToUser();
         return u;
     }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
     public static void ajouterAmi(Friend f, String fileName){
         User u = new User();
         u = FileToProfile(fileName);
         File oldProfile = new File(fileName);
-<<<<<<< HEAD
         oldProfile.delete();
         u.addFriend(f);
         Flux flux = new Flux(null, u, "USER");
         creerFile(flux, fileName);
-=======
-        oldProfile.delete(); 
-        u.addFriend(f);
-        Flux flux = new Flux(null, u, "USER");        
-        creerProfile(flux, fileName);
->>>>>>> 8436ef8c59d6bebcba6fddbffd988dc0e064db60
     }
     public static void ajouterPost(Post p, String fileName){
         User u = new User();
